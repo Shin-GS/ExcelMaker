@@ -1,7 +1,7 @@
 name: Release to Maven Central
 
 on:
-  workflow_dispatch: # Only manual runs from the GitHub UI
+  workflow_dispatch: # Only manual runs
 
 jobs:
   publish:
@@ -26,6 +26,9 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
       - name: Publish and Release to Maven Central
         env:
