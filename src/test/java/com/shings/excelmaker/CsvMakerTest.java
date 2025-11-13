@@ -1,6 +1,6 @@
-package com.visual123.excelmaker;
+package com.shings.excelmaker;
 
-import com.visual123.excelmaker.exception.CsvMakerException;
+import com.shings.excelmaker.exception.CsvMakerException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

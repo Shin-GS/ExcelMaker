@@ -1,14 +1,19 @@
 plugins {
     id("java")
+    id("maven-publish")
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+
+    // Optional but recommended: also publish sources and javadoc jars
+    withSourcesJar()
+    withJavadocJar()
 }
 
-group = "com.visual123.excelmaker"
+group = "io.github.shin-gs"
 version = "0.0.1"
 
 repositories {
@@ -22,4 +27,12 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.visual123.excelmaker.exception;
+package com.shings.excelmaker.exception;
 
 /**
  * Custom exception for CSV generation errors.

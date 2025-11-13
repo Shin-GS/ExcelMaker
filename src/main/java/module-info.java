@@ -1,4 +1,4 @@
-module com.visual123.excelmaker {
-    exports com.visual123.excelmaker;
-    exports com.visual123.excelmaker.exception;
+module com.shings.excelmaker {
+    exports com.shings.excelmaker;
+    exports com.shings.excelmaker.exception;
 }

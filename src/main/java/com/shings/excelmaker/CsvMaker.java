@@ -1,7 +1,7 @@
-package com.visual123.excelmaker;
+package com.shings.excelmaker;
 
-import com.visual123.excelmaker.exception.CsvMakerException;
-import com.visual123.excelmaker.util.FileUtil;
+import com.shings.excelmaker.exception.CsvMakerException;
+import com.shings.excelmaker.util.FileUtil;
 
 import java.io.BufferedWriter;
 import java.io.File;
