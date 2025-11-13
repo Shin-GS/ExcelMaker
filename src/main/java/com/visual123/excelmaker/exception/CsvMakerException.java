@@ -1,0 +1,28 @@
+package com.visual123.excelmaker.exception;
+
+/**
+ * Custom exception for CSV generation errors.
+ * This exception wraps underlying I/O or processing exceptions
+ * to provide a unified runtime error for CsvMaker operations.
+ */
+public class CsvMakerException extends RuntimeException {
+
+    /**
+     * Constructor with only message.
+     *
+     * @param message the error message.
+     */
+    public CsvMakerException(String message) {
+        super(message);
+    }
+
+    /**
+     * Constructor with message and underlying cause.
+     *
+     * @param message the error message.
+     * @param cause   the original exception.
+     */
+    public CsvMakerException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
