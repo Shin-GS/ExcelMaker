@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test suite for CsvMakerImpl to verify CSV file generation behavior.
  */
-class CsvMakerImplTest {
+class CsvMakerTest {
     @TempDir
     Path tempDir;
 

@@ -93,27 +93,38 @@ public final class XlsxCreator {
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             fillWorkbook(workbook);
 
+            // 1) 패스워드 없으면 평문으로 바로 쓴다.
             if (password == null || password.isBlank()) {
                 workbook.write(out);
                 return;
             }
 
-            try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                workbook.write(bos);
-                byte[] workbookBytes = bos.toByteArray();
+            // 2) 우선 평문 XLSX를 임시 파일로 쓴다.
+            Path tempFile = Files.createTempFile("xlsx-creator-", ".xlsx");
+            try {
+                try (OutputStream tempOut = Files.newOutputStream(tempFile)) {
+                    workbook.write(tempOut);
+                }
 
-                EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
-                Encryptor encryptor = info.getEncryptor();
+                // 3) Agile 암호화 정보 및 Encryptor 준비
+                EncryptionInfo encryptionInfo = new EncryptionInfo(EncryptionMode.agile);
+                Encryptor encryptor = encryptionInfo.getEncryptor();
                 encryptor.confirmPassword(password);
 
-                try (POIFSFileSystem fs = new POIFSFileSystem();
-                     ByteArrayInputStream bis = new ByteArrayInputStream(workbookBytes);
-                     OPCPackage opc = OPCPackage.open(bis)) {
+                // 4) POIFS 컨테이너 생성 후, OPCPackage(임시 파일) -> 암호화 스트림으로 저장
+                try (POIFSFileSystem poifsFileSystem = new POIFSFileSystem();
+                     OPCPackage opcPackage = OPCPackage.open(tempFile.toFile());
+                     OutputStream encryptedStream = encryptor.getDataStream(poifsFileSystem)) {
 
-                    OutputStream encryptOut = encryptor.getDataStream(fs);
-                    opc.save(encryptOut);
-                    fs.writeFilesystem(out);
+                    opcPackage.save(encryptedStream);
+                    encryptedStream.flush();
+
+                    // 5) 암호화된 OLE2 컨테이너 전체를 최종 OutputStream 으로 기록
+                    poifsFileSystem.writeFilesystem(out);
                 }
+            } finally {
+                // 6) 임시 파일 정리
+                Files.deleteIfExists(tempFile);
             }
 
         } catch (IOException e) {
