@@ -41,16 +41,9 @@ public class CsvMaker {
             throw new CsvMakerException("Invalid file name: " + filename);
         }
 
+        FileUtil.createDirectory(archiveRootPath);
         String safeFileName = filename.endsWith(".csv") ? filename : filename + ".csv";
         Path targetPath = archiveRootPath.resolve(safeFileName);
-
-        try {
-            Files.createDirectories(archiveRootPath);
-
-        } catch (IOException e) {
-            throw new CsvMakerException("Failed to create archive directory: " + archiveRootPath, e);
-        }
-
         try (BufferedWriter writer = Files.newBufferedWriter(targetPath, DEFAULT_CHARSET_CSV)) {
             for (String line : lines) {
                 writer.append(line);
