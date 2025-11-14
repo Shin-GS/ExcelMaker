@@ -5,14 +5,14 @@ package com.shings.excelmaker.exception;
  * This exception wraps underlying I/O or processing exceptions
  * to provide a unified runtime error for CsvMaker operations.
  */
-public class CsvMakerException extends RuntimeException {
+public class CsvException extends RuntimeException {
 
     /**
      * Constructor with only message.
      *
      * @param message the error message.
      */
-    public CsvMakerException(String message) {
+    public CsvException(String message) {
         super(message);
     }
 
@@ -22,7 +22,7 @@ public class CsvMakerException extends RuntimeException {
      * @param message the error message.
      * @param cause   the original exception.
      */
-    public CsvMakerException(String message, Throwable cause) {
+    public CsvException(String message, Throwable cause) {
         super(message, cause);
     }
 }

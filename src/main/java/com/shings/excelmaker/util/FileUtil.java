@@ -1,6 +1,6 @@
 package com.shings.excelmaker.util;
 
-import com.shings.excelmaker.exception.CsvMakerException;
+import com.shings.excelmaker.exception.CsvException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,7 +39,7 @@ public class FileUtil {
             Files.createDirectories(path);
 
         } catch (IOException e) {
-            throw new CsvMakerException("Failed to create archive directory: " + path, e);
+            throw new CsvException("Failed to create archive directory: " + path, e);
         }
     }
 }

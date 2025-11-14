@@ -1,6 +1,6 @@
 package com.shings.excelmaker;
 
-import com.shings.excelmaker.exception.CsvMakerException;
+import com.shings.excelmaker.exception.CsvException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -42,7 +42,7 @@ class CsvMakerImplTest {
     void testNullLinesThrowsException() {
         CsvMaker maker = new CsvMaker(tempDir);
 
-        assertThrows(CsvMakerException.class, () ->
+        assertThrows(CsvException.class, () ->
                 maker.ofList(null, "test.csv"));
     }
 
@@ -53,7 +53,7 @@ class CsvMakerImplTest {
     void testInvalidFilenameThrowsException() {
         CsvMaker maker = new CsvMaker(tempDir);
 
-        assertThrows(CsvMakerException.class, () ->
+        assertThrows(CsvException.class, () ->
                 maker.ofList(List.of("A"), "invalid/name"));
     }
 

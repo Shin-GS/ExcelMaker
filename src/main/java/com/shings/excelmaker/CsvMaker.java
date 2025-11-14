@@ -1,6 +1,6 @@
 package com.shings.excelmaker;
 
-import com.shings.excelmaker.exception.CsvMakerException;
+import com.shings.excelmaker.exception.CsvException;
 import com.shings.excelmaker.util.FileUtil;
 
 import java.io.BufferedWriter;
@@ -17,7 +17,7 @@ public class CsvMaker {
 
     public CsvMaker(Path archiveRootPath) {
         if (archiveRootPath == null) {
-            throw new CsvMakerException("archiveRootPath must not be null.");
+            throw new CsvException("archiveRootPath must not be null.");
         }
 
         this.archiveRootPath = archiveRootPath.toAbsolutePath().normalize();
@@ -29,21 +29,22 @@ public class CsvMaker {
      * @param lines    the lines to write into the CSV file.
      * @param filename the output CSV filename.
      * @return the generated CSV file.
-     * @throws CsvMakerException if CSV creation fails.
+     * @throws CsvException if CSV creation fails.
      */
     public File ofList(List<String> lines,
-                       String filename) throws CsvMakerException {
+                       String filename) throws CsvException {
         if (lines == null) {
-            throw new CsvMakerException("lines must not be null.");
+            throw new CsvException("lines must not be null.");
         }
 
         if (FileUtil.isInvalidFilename(filename)) {
-            throw new CsvMakerException("Invalid file name: " + filename);
+            throw new CsvException("Invalid file name: " + filename);
         }
 
         FileUtil.createDirectory(archiveRootPath);
         String safeFileName = filename.endsWith(".csv") ? filename : filename + ".csv";
         Path targetPath = archiveRootPath.resolve(safeFileName);
+
         try (BufferedWriter writer = Files.newBufferedWriter(targetPath, DEFAULT_CHARSET_CSV)) {
             for (String line : lines) {
                 writer.append(line);
@@ -53,7 +54,7 @@ public class CsvMaker {
             writer.flush();
 
         } catch (IOException e) {
-            throw new CsvMakerException("Failed to write CSV file: " + targetPath, e);
+            throw new CsvException("Failed to write CSV file: " + targetPath, e);
         }
 
         return targetPath.toFile();
