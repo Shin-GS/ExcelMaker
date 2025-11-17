@@ -3,15 +3,17 @@ package com.shings.excelmaker;
 import com.shings.excelmaker.exception.XlsxException;
 import com.shings.excelmaker.xlsx.XlsxSheet;
 import com.shings.excelmaker.xlsx.XlsxSheetCell;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.crypt.EncryptionMode;
 import org.apache.poi.poifs.crypt.Encryptor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -90,52 +92,33 @@ public final class XlsxCreator {
     }
 
     private void generate(OutputStream out) {
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook()) {
+            workbook.setCompressTempFiles(true);
             fillWorkbook(workbook);
 
-            // 1) 패스워드 없으면 평문으로 바로 쓴다.
             if (password == null || password.isBlank()) {
                 workbook.write(out);
                 return;
             }
 
-            // 2) 우선 평문 XLSX를 임시 파일로 쓴다.
-            Path tempFile = Files.createTempFile("xlsx-creator-", ".xlsx");
-            try {
-                try (OutputStream tempOut = Files.newOutputStream(tempFile)) {
-                    workbook.write(tempOut);
-                }
-
-                // 3) Agile 암호화 정보 및 Encryptor 준비
-                EncryptionInfo encryptionInfo = new EncryptionInfo(EncryptionMode.agile);
-                Encryptor encryptor = encryptionInfo.getEncryptor();
+            try (POIFSFileSystem fs = new POIFSFileSystem()) {
+                EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
+                Encryptor encryptor = info.getEncryptor();
                 encryptor.confirmPassword(password);
 
-                // 4) POIFS 컨테이너 생성 후, OPCPackage(임시 파일) -> 암호화 스트림으로 저장
-                try (POIFSFileSystem poifsFileSystem = new POIFSFileSystem();
-                     OPCPackage opcPackage = OPCPackage.open(tempFile.toFile());
-                     OutputStream encryptedStream = encryptor.getDataStream(poifsFileSystem)) {
-
-                    opcPackage.save(encryptedStream);
-                    encryptedStream.flush();
-
-                    // 5) 암호화된 OLE2 컨테이너 전체를 최종 OutputStream 으로 기록
-                    poifsFileSystem.writeFilesystem(out);
+                try (OutputStream encryptorDataStream = encryptor.getDataStream(fs)) {
+                    workbook.write(encryptorDataStream);
                 }
-            } finally {
-                // 6) 임시 파일 정리
-                Files.deleteIfExists(tempFile);
+
+                fs.writeFilesystem(out);
             }
 
-        } catch (IOException e) {
-            throw new XlsxException("Failed to generate XLSX output.", e);
-
         } catch (Exception e) {
-            throw new XlsxException("Failed to encrypt XLSX file.", e);
+            throw new XlsxException("Failed to create XLSX bytes.", e);
         }
     }
 
-    private void fillWorkbook(XSSFWorkbook workbook) {
+    private void fillWorkbook(SXSSFWorkbook workbook) {
         for (XlsxSheet sheetSpec : sheets) {
             Sheet sheet = workbook.createSheet(sheetSpec.getSheetName());
             if (!sheetSpec.hasHeader()) {
@@ -148,7 +131,7 @@ public final class XlsxCreator {
         }
     }
 
-    private void renderHeader(XSSFWorkbook workbook,
+    private void renderHeader(SXSSFWorkbook workbook,
                               Sheet sheet,
                               List<XlsxSheetCell> headerCells) {
         Row headerRow = sheet.createRow(0);
