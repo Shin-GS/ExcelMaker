@@ -33,7 +33,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.shin-gs",
         artifactId = "excelmaker",
-        version = "0.0.1"
+        version = "0.0.2"
     )
 
     pom {
