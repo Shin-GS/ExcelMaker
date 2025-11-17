@@ -228,13 +228,6 @@ class XlsxCreatorTest {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(encryptedBytes);
              POIFSFileSystem fs = new POIFSFileSystem(bis)) {
 
-            // todo
-            System.out.println(">>> POIFS root entries: ");
-            for (Entry entry : fs.getRoot()) {
-                System.out.println(" - " + entry.getName());
-            }
-            //todo
-
             EncryptionInfo info = new EncryptionInfo(fs);
             Decryptor decryptor = Decryptor.getInstance(info);
 
