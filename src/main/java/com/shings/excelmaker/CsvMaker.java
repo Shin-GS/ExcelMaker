@@ -12,14 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class CsvMaker extends AbstractMaker<CsvException> {
-    private final List<String> lines;
     private final List<List<String>> rows;
     private final char delimiter;
     private final String lineSeparator;
 
     private CsvMaker(Builder builder) {
         super(builder.fileName);
-        this.lines = CollectionCopyUtils.nullSafeCopyOf(builder.lines);
         this.rows = CollectionCopyUtils.nullSafeCopyOf(builder.rows);
         this.delimiter = builder.delimiter;
         this.lineSeparator = builder.lineSeparator;
@@ -27,10 +25,6 @@ public final class CsvMaker extends AbstractMaker<CsvException> {
 
     public static Builder builder(String fileName) {
         return new Builder(fileName);
-    }
-
-    public List<String> getLines() {
-        return lines;
     }
 
     public List<List<String>> getRows() {
@@ -52,10 +46,6 @@ public final class CsvMaker extends AbstractMaker<CsvException> {
     @Override
     protected void generate(OutputStream out) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-        for (String line : lines) {
-            writer.write(line);
-            writer.write(lineSeparator);
-        }
 
         for (List<String> row : rows) {
             if (row == null || row.isEmpty()) {
@@ -92,11 +82,7 @@ public final class CsvMaker extends AbstractMaker<CsvException> {
             return "";
         }
 
-        boolean needsQuote =
-                value.indexOf(delimiter) >= 0
-                        || value.indexOf('"') >= 0
-                        || value.indexOf('\n') >= 0
-                        || value.indexOf('\r') >= 0;
+        boolean needsQuote = value.indexOf(delimiter) >= 0 || value.indexOf('"') >= 0 || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0;
         if (!needsQuote) {
             return value;
         }
@@ -116,7 +102,6 @@ public final class CsvMaker extends AbstractMaker<CsvException> {
 
     public static final class Builder {
         private final String fileName;
-        private final List<String> lines = new ArrayList<>();
         private final List<List<String>> rows = new ArrayList<>();
         private char delimiter = ',';
         private String lineSeparator = System.lineSeparator();
@@ -127,7 +112,9 @@ public final class CsvMaker extends AbstractMaker<CsvException> {
 
         public Builder line(String line) {
             if (line != null) {
-                lines.add(line);
+                List<String> row = new ArrayList<>();
+                row.add(line);
+                rows.add(row);
             }
 
             return this;
@@ -139,7 +126,12 @@ public final class CsvMaker extends AbstractMaker<CsvException> {
             }
 
             if (!lines.isEmpty()) {
-                this.lines.addAll(CollectionCopyUtils.nullSafeCopyOf(lines));
+                List<String> safeLines = CollectionCopyUtils.nullSafeCopyOf(lines);
+                for (String line : safeLines) {
+                    List<String> row = new ArrayList<>();
+                    row.add(line);
+                    rows.add(row);
+                }
             }
 
             return this;

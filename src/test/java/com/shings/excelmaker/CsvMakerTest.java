@@ -53,8 +53,22 @@ class CsvMakerTest {
                 .line(null)
                 .build();
 
-        assertNotNull(maker.getLines());
-        assertTrue(maker.getLines().isEmpty());
+        assertNotNull(maker.getRows());
+        assertTrue(maker.getRows().isEmpty());
+    }
+
+    @Test
+    void builder_lines_addsSingleColumnRows() {
+        List<String> lines = List.of("L1", "L2");
+
+        CsvMaker maker = CsvMaker.builder("test.csv")
+                .lines(lines)
+                .build();
+
+        List<List<String>> rows = maker.getRows();
+        assertEquals(2, rows.size());
+        assertEquals(List.of("L1"), rows.get(0));
+        assertEquals(List.of("L2"), rows.get(1));
     }
 
     @Test
@@ -113,7 +127,7 @@ class CsvMakerTest {
 
     @Test
     void toBytes_withLinesAndRows_generatesExpectedCsv() {
-        List<String> headerLines = List.of("HEADER1,HEADER2");
+        List<String> headerLines = List.of("HEADER_ROW1", "HEADER_ROW2");
         List<List<String>> rows = List.of(
                 List.of("A1", "B1"),
                 List.of("A2", "B2")
@@ -133,7 +147,8 @@ class CsvMakerTest {
         String csv = new String(bytes, StandardCharsets.UTF_8);
         String expected =
                 """
-                        HEADER1,HEADER2
+                        HEADER_ROW1
+                        HEADER_ROW2
                         A1,B1
                         A2,B2
                         """;
