@@ -1,8 +1,8 @@
 package com.shings.excelmaker.xlsx;
 
-import com.shings.excelmaker.constants.XlsxBorder;
-import com.shings.excelmaker.constants.XlsxColor;
-import com.shings.excelmaker.constants.XlsxTextAlign;
+import com.shings.excelmaker.xlsx.attribute.XlsxBorder;
+import com.shings.excelmaker.xlsx.attribute.XlsxColor;
+import com.shings.excelmaker.xlsx.attribute.XlsxTextAlign;
 import com.shings.excelmaker.exception.XlsxException;
 
 public final class XlsxSheetCell {

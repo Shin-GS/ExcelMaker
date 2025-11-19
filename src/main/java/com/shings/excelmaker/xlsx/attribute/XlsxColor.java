@@ -1,4 +1,4 @@
-package com.shings.excelmaker.constants;
+package com.shings.excelmaker.xlsx.attribute;
 
 import org.apache.poi.ss.usermodel.IndexedColors;
 

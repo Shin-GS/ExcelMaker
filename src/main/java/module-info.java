@@ -3,5 +3,5 @@ module com.shings.excelmaker {
     exports com.shings.excelmaker;
     exports com.shings.excelmaker.exception;
     exports com.shings.excelmaker.xlsx;
-    exports com.shings.excelmaker.constants;
+    exports com.shings.excelmaker.xlsx.attribute;
 }
