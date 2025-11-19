@@ -1,42 +1,66 @@
 # excelmaker
 
-Simple Java library to generate CSV and XLSX files with a fluent builder API.
+![Java](https://img.shields.io/badge/Java-17%2B-blue.svg)
+![Build](https://img.shields.io/badge/Build-Ready-success.svg)
+![License](https://img.shields.io/badge/License-Custom-lightgrey.svg)
 
-## Features
+A fast, safe, and extensible Java library for generating **CSV** and **XLSX** files through a clean and fluent builder
+API.
 
-- Generate CSV files from lists of rows or lines
-- Generate XLSX files with multiple sheets
-- Support for header styling (font color, background color, alignment, border)
-- Password-protected XLSX (Agile encryption via Apache POI)
-- Unified output API:
-  - `toBytes()`
-  - `write(OutputStream out)`
-  - `toPath(Path targetPath)`
-  - `toFile(File targetFile)`
-  - `toFile(Path dir, String fileName)`
-  - `toTempFile(String suffix)` or convenience methods
+> This library was created to eliminate repetitive Excel/CSV export code across different projects  
+> and provide a more extensible, reliable, and high-performance solution.
 
-## Installation
+---
+
+## ✨ Features
+
+- **Fluent API** for CSV/XLSX generation
+- **CSV** generation from lines or row-based structures
+- **XLSX** generation with:
+    - Multiple sheets
+    - Styled headers (font color, background color, alignment, borders, column width)
+    - Optional password protection (Apache POI Agile Encryption)
+- **Unified output API**
+    - `toBytes()`
+    - `write(OutputStream out)`
+    - `toPath(Path targetPath)`
+    - `toFile(File targetFile)`
+    - `toFile(Path dir, String fileName)`
+    - `toTempFile(String suffix)`
+- **Defensive copy** strategy for all collections
+- **Dedicated exception hierarchy** (CsvException / XlsxException)
+
+---
+
+## 📦 Installation
 
 **Maven**
 
 ```xml
 <dependency>
-    <groupId>com.shings</groupId>
+    <groupId>io.github.shin-gs</groupId>
     <artifactId>excelmaker</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.1</version>
 </dependency>
 ```
 
-**Gradle**
+**Gradle (Groovy DSL)**
 
 ```groovy
-implementation "com.shings:excelmaker:1.0.0"
+implementation "io.github.shin-gs:excelmaker:0.0.1"
 ```
 
-## Quick Start
+**Gradle (Kotlin DSL)**
 
-### CSV
+```groovy
+implementation("io.github.shin-gs:excelmaker:0.0.1")
+```
+
+---
+
+## 🚀 Quick Start
+
+### CSV Example
 
 ```java
 import com.shings.excelmaker.CsvMaker;
@@ -66,7 +90,7 @@ public class CsvExample {
 }
 ```
 
-### XLSX
+### XLSX Example
 
 ```java
 import com.shings.excelmaker.XlsxMaker;
@@ -91,12 +115,38 @@ public class XlsxExample {
                 .build();
 
         File tempFile = maker.toTempFile();
-
         byte[] bytes = maker.toBytes();
     }
 }
 ```
 
-## Documentation
+---
+
+## 📚 Documentation
+
+Full version-specific documentation can be found under:
 
 - [v1 Documentation](./docs/v1/README.md)
+
+---
+
+## 🔄 Versioning Policy
+
+- **Major Versions (e.g., 1.x → 2.x)**  
+  API structure and usage may change.  
+  Documentation is maintained separately under `/docs/v{version}`.
+
+- **Minor Versions (e.g., 1.0 → 1.1)**  
+  Fully backward compatible.  
+  Existing API usage will remain supported.
+
+---
+
+## 💬 Feedback & Ideas
+
+If you have suggestions or ideas to improve this library, feel free to contact:
+
+**rudtjq1213@gmail.com**
+
+Fast and detailed responses are guaranteed.
+
