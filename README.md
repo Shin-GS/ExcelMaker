@@ -37,6 +37,7 @@ API.
 **Maven**
 
 ```xml
+
 <dependency>
     <groupId>io.github.shin-gs</groupId>
     <artifactId>excelmaker</artifactId>
@@ -68,16 +69,34 @@ import com.shings.excelmaker.CsvMaker;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 
 public class CsvExample {
-
     public static void main(String[] args) {
+        // build
+        /*
+                id | name
+                1 | Alice
+                2 | Bob
+         */
         CsvMaker csvMaker = CsvMaker.builder("users.csv")
                 .row(Arrays.asList("id", "name"))
                 .row(Arrays.asList("1", "Alice"))
                 .row(Arrays.asList("2", "Bob"))
                 .build();
 
+        CsvMaker csvMaker2 = CsvMaker.builder("users.csv")
+                .row(List.of("id", "name"))
+                .rows(List.of(List.of("1", "Alice"), List.of("2", "Bob")))
+                .build();
+
+        CsvMaker csvMaker3 = CsvMaker.builder("users.csv")
+                .row(List.of("id", "name"))
+                .lines(List.of("1,Alice", "2,Bob"))
+                .delimiter(',')
+                .build();
+
+        // output
         byte[] bytes = csvMaker.toBytes();
 
         File file = csvMaker.toFile(
@@ -100,8 +119,13 @@ import java.io.File;
 import java.util.Arrays;
 
 public class XlsxExample {
-
     public static void main(String[] args) {
+        // build
+        /*
+                id | name
+                1 | Alice
+                2 | Bob
+         */
         XlsxSheet sheet = XlsxSheet.builder("users")
                 .header(Arrays.asList("id", "name"))
                 .rows(Arrays.asList(
@@ -114,6 +138,11 @@ public class XlsxExample {
                 .sheet(sheet)
                 .build();
 
+        XlsxMaker maker2 = XlsxMaker.builder("users.xlsx")
+                .sheetRows("users", List.of(List.of("id", "name"), List.of("1", "Alice"), List.of("2", "Bob")))
+                .build();
+
+        // output
         File tempFile = maker.toTempFile();
         byte[] bytes = maker.toBytes();
     }
