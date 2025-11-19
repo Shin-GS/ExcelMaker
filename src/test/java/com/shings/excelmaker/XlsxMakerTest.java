@@ -102,7 +102,7 @@ class XlsxMakerTest {
     void toFile_nullTargetFile_throwsException() {
         XlsxMaker maker = XlsxMaker.builder("test.xlsx").build();
 
-        assertThrows(XlsxException.class, () -> maker.toFile((java.io.File) null));
+        assertThrows(XlsxException.class, () -> maker.toFile(null));
     }
 
     @Test
@@ -161,10 +161,8 @@ class XlsxMakerTest {
                 .build();
 
         Path targetPath = tempDir.resolve("data.xlsx");
+        maker.toPath(targetPath);
 
-        Path resultPath = maker.toPath(targetPath);
-
-        assertEquals(targetPath, resultPath);
         assertTrue(Files.exists(targetPath));
         assertTrue(Files.size(targetPath) > 0L);
 
@@ -196,9 +194,8 @@ class XlsxMakerTest {
         Path targetPath = tempDir.resolve("file.xlsx");
         java.io.File targetFile = targetPath.toFile();
 
-        java.io.File resultFile = maker.toFile(targetFile);
+        maker.toFile(targetFile);
 
-        assertEquals(targetFile, resultFile);
         assertTrue(targetFile.exists());
         assertTrue(targetFile.length() > 0L);
     }
@@ -370,10 +367,6 @@ class XlsxMakerTest {
         }
     }
 
-    // ----------------------------------------------------------------------
-    // Additional tests
-    // ----------------------------------------------------------------------
-
     @Test
     void builder_sheets_originalListMutationDoesNotAffectmaker() {
         List<List<String>> rows = List.of(List.of("A1"));
@@ -395,7 +388,7 @@ class XlsxMakerTest {
         XlsxMaker maker = builder.build();
 
         assertEquals(1, maker.getSheets().size());
-        assertEquals("S1", maker.getSheets().get(0).getSheetName());
+        assertEquals("S1", maker.getSheets().getFirst().getSheetName());
     }
 
     @Test
@@ -420,11 +413,11 @@ class XlsxMakerTest {
 
         assertEquals("named.xlsx", maker.getFileName());
         assertEquals(1, maker.getSheets().size());
-        assertEquals("Sheet1", maker.getSheets().get(0).getSheetName());
+        assertEquals("Sheet1", maker.getSheets().getFirst().getSheetName());
     }
 
     @Test
-    void toFile_withDirAndFileName_writesFileOnDisk() throws IOException {
+    void toFile_withDirAndFileName_writesFileOnDisk() {
         List<List<String>> rows = List.of(
                 List.of("D1", "E1")
         );

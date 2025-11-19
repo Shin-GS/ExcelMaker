@@ -94,7 +94,7 @@ class CsvMakerTest {
     void toFile_nullTargetFile_throwsException() {
         CsvMaker maker = CsvMaker.builder("test.csv").build();
 
-        assertThrows(CsvException.class, () -> maker.toFile((File) null));
+        assertThrows(CsvException.class, () -> maker.toFile(null));
     }
 
     @Test
@@ -132,9 +132,11 @@ class CsvMakerTest {
 
         String csv = new String(bytes, StandardCharsets.UTF_8);
         String expected =
-                "HEADER1,HEADER2\n" +
-                        "A1,B1\n" +
-                        "A2,B2\n";
+                """
+                        HEADER1,HEADER2
+                        A1,B1
+                        A2,B2
+                        """;
 
         assertEquals(expected, csv);
     }
@@ -209,9 +211,8 @@ class CsvMakerTest {
 
         Path targetPath = tempDir.resolve("data.csv");
 
-        Path resultPath = maker.toPath(targetPath);
+        maker.toPath(targetPath);
 
-        assertEquals(targetPath, resultPath);
         assertTrue(Files.exists(targetPath));
         assertTrue(Files.size(targetPath) > 0L);
 
@@ -233,9 +234,8 @@ class CsvMakerTest {
         Path targetPath = tempDir.resolve("file.csv");
         File targetFile = targetPath.toFile();
 
-        File resultFile = maker.toFile(targetFile);
+        maker.toFile(targetFile);
 
-        assertEquals(targetFile, resultFile);
         assertTrue(targetFile.exists());
         assertTrue(targetFile.length() > 0L);
 
@@ -342,7 +342,7 @@ class CsvMakerTest {
     }
 
     @Test
-    void generate_writesEmptyLineForEmptyRow() throws IOException {
+    void generate_writesEmptyLineForEmptyRow() {
         List<List<String>> rows = new ArrayList<>();
         rows.add(List.of("A"));
         rows.add(List.of());
@@ -357,15 +357,17 @@ class CsvMakerTest {
         String csv = new String(bytes, StandardCharsets.UTF_8);
 
         String expected =
-                "A\n" +
-                        "\n" +
-                        "B\n";
+                """
+                        A
+                        
+                        B
+                        """;
 
         assertEquals(expected, csv);
     }
 
     @Test
-    void toBytes_usesSystemLineSeparatorByDefault() throws IOException {
+    void toBytes_usesSystemLineSeparatorByDefault() {
         List<List<String>> rows = List.of(
                 List.of("A", "B"),
                 List.of("C", "D")

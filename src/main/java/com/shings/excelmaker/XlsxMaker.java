@@ -11,37 +11,25 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class XlsxMaker {
-    private final String fileName;
+public final class XlsxMaker extends AbstractMaker<XlsxException> {
     private final List<XlsxSheet> sheets;
     private final String password;
 
     private XlsxMaker(Builder builder) {
-        if (builder.fileName == null || builder.fileName.isBlank()) {
-            throw new XlsxException("fileName must not be null or blank.");
-        }
-
-        this.fileName = builder.fileName;
+        super(builder.fileName);
         this.sheets = CollectionCopyUtils.nullSafeCopyOf(builder.sheets);
         this.password = builder.password;
     }
 
     public static Builder builder(String fileName) {
         return new Builder(fileName);
-    }
-
-    public String getFileName() {
-        return fileName;
     }
 
     public List<XlsxSheet> getSheets() {
@@ -52,99 +40,41 @@ public final class XlsxMaker {
         return password;
     }
 
-    public byte[] toBytes() {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            generate(outputStream);
-            return outputStream.toByteArray();
-
-        } catch (IOException e) {
-            throw new XlsxException("Failed to convert XLSX workbook to byte array.");
-        }
-    }
-
-    public void write(OutputStream out) {
-        if (out == null) {
-            throw new XlsxException("OutputStream must not be null.");
-        }
-
-        generate(out);
-    }
-
-    public Path toPath(Path targetPath) {
-        if (targetPath == null) {
-            throw new XlsxException("targetPath must not be null.");
-        }
-
-        try (OutputStream outputStream = Files.newOutputStream(targetPath)) {
-            generate(outputStream);
-            return targetPath;
-
-        } catch (IOException e) {
-            throw new XlsxException("Failed to write XLSX file: " + targetPath, e);
-        }
-    }
-
-    public File toFile(File targetFile) {
-        if (targetFile == null) {
-            throw new XlsxException("targetFile must not be null.");
-        }
-
-        toPath(targetFile.toPath());
-        return targetFile;
-    }
-
-    public File toFile(Path dir, String fileName) {
-        if (dir == null) {
-            throw new XlsxException("dir must not be null.");
-        }
-
-        if (fileName == null || fileName.isBlank()) {
-            throw new XlsxException("fileName must not be null or blank.");
-        }
-
-        Path resolvedPath = dir.resolve(fileName);
-        toPath(resolvedPath);
-        return resolvedPath.toFile();
-    }
-
     public File toTempFile() {
-        try {
-            Path temp = Files.createTempFile(null, ".xlsx");
-            try (OutputStream out = Files.newOutputStream(temp)) {
-                generate(out);
-            }
-
-            return temp.toFile();
-
-        } catch (IOException e) {
-            throw new XlsxException("Failed to generate temporary XLSX file.", e);
-        }
+        return toTempFile(".xlsx");
     }
 
-    private void generate(OutputStream out) {
+    @Override
+    protected void generate(OutputStream out) throws IOException {
         try (SXSSFWorkbook workbook = new SXSSFWorkbook()) {
             workbook.setCompressTempFiles(true);
             fillWorkbook(workbook);
 
             if (password == null || password.isBlank()) {
-                writePlainWorkbook(workbook, out);
+                workbook.write(out);
                 return;
             }
 
             writeEncryptedWorkbook(workbook, out, password);
 
-        } catch (IOException e) {
-            throw new XlsxException("Failed to generate XLSX workbook.", e);
+        } catch (GeneralSecurityException e) {
+
+            throw createException("Failed to generate XLSX workbook.", e);
         }
     }
 
-    private void writePlainWorkbook(SXSSFWorkbook workbook, OutputStream out) throws IOException {
-        workbook.write(out);
+    @Override
+    protected XlsxException createException(String message, Throwable cause) {
+        if (cause == null) {
+            return new XlsxException(message);
+        }
+
+        return new XlsxException(message, cause);
     }
 
     private void writeEncryptedWorkbook(SXSSFWorkbook workbook,
                                         OutputStream out,
-                                        String password) throws IOException {
+                                        String password) throws IOException, GeneralSecurityException {
         try (POIFSFileSystem fs = new POIFSFileSystem()) {
             EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
             Encryptor encryptor = info.getEncryptor();
@@ -152,9 +82,6 @@ public final class XlsxMaker {
 
             try (OutputStream encryptorDataStream = encryptor.getDataStream(fs)) {
                 workbook.write(encryptorDataStream);
-
-            } catch (GeneralSecurityException e) {
-                throw new XlsxException("Failed to encrypt XLSX workbook.", e);
             }
 
             fs.writeFilesystem(out);
