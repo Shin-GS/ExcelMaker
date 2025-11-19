@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +57,7 @@ public final class XlsxCreator {
             return outputStream.toByteArray();
 
         } catch (IOException e) {
-            throw new XlsxException("Failed to create XLSX bytes.", e);
+            throw new XlsxException("Failed to convert XLSX workbook to byte array.");
         }
     }
 
@@ -97,24 +98,37 @@ public final class XlsxCreator {
             fillWorkbook(workbook);
 
             if (password == null || password.isBlank()) {
-                workbook.write(out);
+                writePlainWorkbook(workbook, out);
                 return;
             }
 
-            try (POIFSFileSystem fs = new POIFSFileSystem()) {
-                EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
-                Encryptor encryptor = info.getEncryptor();
-                encryptor.confirmPassword(password);
+            writeEncryptedWorkbook(workbook, out, password);
 
-                try (OutputStream encryptorDataStream = encryptor.getDataStream(fs)) {
-                    workbook.write(encryptorDataStream);
-                }
+        } catch (IOException e) {
+            throw new XlsxException("Failed to generate XLSX workbook.", e);
+        }
+    }
 
-                fs.writeFilesystem(out);
+    private void writePlainWorkbook(SXSSFWorkbook workbook, OutputStream out) throws IOException {
+        workbook.write(out);
+    }
+
+    private void writeEncryptedWorkbook(SXSSFWorkbook workbook,
+                                        OutputStream out,
+                                        String password) throws IOException {
+        try (POIFSFileSystem fs = new POIFSFileSystem()) {
+            EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
+            Encryptor encryptor = info.getEncryptor();
+            encryptor.confirmPassword(password);
+
+            try (OutputStream encryptorDataStream = encryptor.getDataStream(fs)) {
+                workbook.write(encryptorDataStream);
+
+            } catch (GeneralSecurityException e) {
+                throw new XlsxException("Failed to encrypt XLSX workbook.", e);
             }
 
-        } catch (Exception e) {
-            throw new XlsxException("Failed to create XLSX bytes.", e);
+            fs.writeFilesystem(out);
         }
     }
 
@@ -224,7 +238,7 @@ public final class XlsxCreator {
             }
 
             if (!sheetList.isEmpty()) {
-                sheets.addAll(sheetList);
+                sheets.addAll(List.copyOf(sheetList));
             }
 
             return this;
@@ -251,7 +265,7 @@ public final class XlsxCreator {
             }
 
             if (rows == null) {
-                throw new XlsxException("lines must not be null.");
+                throw new XlsxException("rows must not be null.");
             }
 
             XlsxSheet sheet = XlsxSheet.builder(sheetName)

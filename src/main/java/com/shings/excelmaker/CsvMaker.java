@@ -31,8 +31,7 @@ public class CsvMaker {
      * @return the generated CSV file.
      * @throws CsvException if CSV creation fails.
      */
-    public File ofList(List<String> lines,
-                       String filename) throws CsvException {
+    public File ofList(List<String> lines, String filename) throws CsvException {
         if (lines == null) {
             throw new CsvException("lines must not be null.");
         }
