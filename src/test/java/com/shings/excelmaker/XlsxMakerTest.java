@@ -388,7 +388,7 @@ class XlsxMakerTest {
         XlsxMaker maker = builder.build();
 
         assertEquals(1, maker.getSheets().size());
-        assertEquals("S1", maker.getSheets().getFirst().getSheetName());
+        assertEquals("S1", maker.getSheets().get(0).getSheetName());
     }
 
     @Test
@@ -413,7 +413,7 @@ class XlsxMakerTest {
 
         assertEquals("named.xlsx", maker.getFileName());
         assertEquals(1, maker.getSheets().size());
-        assertEquals("Sheet1", maker.getSheets().getFirst().getSheetName());
+        assertEquals("Sheet1", maker.getSheets().get(0).getSheetName());
     }
 
     @Test
