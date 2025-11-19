@@ -40,20 +40,20 @@ API.
 <dependency>
     <groupId>io.github.shin-gs</groupId>
     <artifactId>excelmaker</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
 **Gradle (Groovy DSL)**
 
 ```groovy
-implementation "io.github.shin-gs:excelmaker:0.0.1"
+implementation "io.github.shin-gs:excelmaker:1.0.0"
 ```
 
 **Gradle (Kotlin DSL)**
 
 ```groovy
-implementation("io.github.shin-gs:excelmaker:0.0.1")
+implementation("io.github.shin-gs:excelmaker:1.0.0")
 ```
 
 ---
