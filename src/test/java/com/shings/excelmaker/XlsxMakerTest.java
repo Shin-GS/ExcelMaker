@@ -22,41 +22,41 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class XlsxCreatorTest {
+class XlsxMakerTest {
     @TempDir
     Path tempDir;
 
     @Test
     void builder_nullFileName_throwsExceptionOnBuild() {
-        XlsxCreator.Builder builder = XlsxCreator.builder(null);
+        XlsxMaker.Builder builder = XlsxMaker.builder(null);
 
         assertThrows(XlsxException.class, builder::build);
     }
 
     @Test
     void builder_blankFileName_throwsExceptionOnBuild() {
-        XlsxCreator.Builder builder = XlsxCreator.builder("   ");
+        XlsxMaker.Builder builder = XlsxMaker.builder("   ");
 
         assertThrows(XlsxException.class, builder::build);
     }
 
     @Test
     void builder_sheet_nullSheet_throwsException() {
-        XlsxCreator.Builder builder = XlsxCreator.builder("test.xlsx");
+        XlsxMaker.Builder builder = XlsxMaker.builder("test.xlsx");
 
         assertThrows(XlsxException.class, () -> builder.sheet(null));
     }
 
     @Test
     void builder_sheets_nullList_throwsException() {
-        XlsxCreator.Builder builder = XlsxCreator.builder("test.xlsx");
+        XlsxMaker.Builder builder = XlsxMaker.builder("test.xlsx");
 
         assertThrows(XlsxException.class, () -> builder.sheets(null));
     }
 
     @Test
     void builder_sheetLines_nullSheetName_throwsException() {
-        XlsxCreator.Builder builder = XlsxCreator.builder("test.xlsx");
+        XlsxMaker.Builder builder = XlsxMaker.builder("test.xlsx");
         List<String> lines = List.of("one", "two");
 
         assertThrows(XlsxException.class, () -> builder.sheetLines(null, lines));
@@ -64,14 +64,14 @@ class XlsxCreatorTest {
 
     @Test
     void builder_sheetLines_nullLines_throwsException() {
-        XlsxCreator.Builder builder = XlsxCreator.builder("test.xlsx");
+        XlsxMaker.Builder builder = XlsxMaker.builder("test.xlsx");
 
         assertThrows(XlsxException.class, () -> builder.sheetLines("Sheet1", null));
     }
 
     @Test
     void builder_sheetRows_nullSheetName_throwsException() {
-        XlsxCreator.Builder builder = XlsxCreator.builder("test.xlsx");
+        XlsxMaker.Builder builder = XlsxMaker.builder("test.xlsx");
         List<List<String>> rows = List.of(List.of("a", "b"));
 
         assertThrows(XlsxException.class, () -> builder.sheetRows(null, rows));
@@ -79,30 +79,30 @@ class XlsxCreatorTest {
 
     @Test
     void builder_sheetRows_nullRows_throwsException() {
-        XlsxCreator.Builder builder = XlsxCreator.builder("test.xlsx");
+        XlsxMaker.Builder builder = XlsxMaker.builder("test.xlsx");
 
         assertThrows(XlsxException.class, () -> builder.sheetRows("Sheet1", null));
     }
 
     @Test
     void write_nullOutputStream_throwsException() {
-        XlsxCreator creator = XlsxCreator.builder("test.xlsx").build();
+        XlsxMaker maker = XlsxMaker.builder("test.xlsx").build();
 
-        assertThrows(XlsxException.class, () -> creator.write(null));
+        assertThrows(XlsxException.class, () -> maker.write(null));
     }
 
     @Test
     void toPath_nullTargetPath_throwsException() {
-        XlsxCreator creator = XlsxCreator.builder("test.xlsx").build();
+        XlsxMaker maker = XlsxMaker.builder("test.xlsx").build();
 
-        assertThrows(XlsxException.class, () -> creator.toPath(null));
+        assertThrows(XlsxException.class, () -> maker.toPath(null));
     }
 
     @Test
     void toFile_nullTargetFile_throwsException() {
-        XlsxCreator creator = XlsxCreator.builder("test.xlsx").build();
+        XlsxMaker maker = XlsxMaker.builder("test.xlsx").build();
 
-        assertThrows(XlsxException.class, () -> creator.toFile((java.io.File) null));
+        assertThrows(XlsxException.class, () -> maker.toFile((java.io.File) null));
     }
 
     @Test
@@ -116,11 +116,11 @@ class XlsxCreatorTest {
                 .rows(rows)
                 .build();
 
-        XlsxCreator creator = XlsxCreator.builder("test.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("test.xlsx")
                 .sheet(sheet)
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
 
         assertNotNull(bytes);
         assertTrue(bytes.length > 0);
@@ -156,13 +156,13 @@ class XlsxCreatorTest {
                 .rows(rows)
                 .build();
 
-        XlsxCreator creator = XlsxCreator.builder("data.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("data.xlsx")
                 .sheet(sheet)
                 .build();
 
         Path targetPath = tempDir.resolve("data.xlsx");
 
-        Path resultPath = creator.toPath(targetPath);
+        Path resultPath = maker.toPath(targetPath);
 
         assertEquals(targetPath, resultPath);
         assertTrue(Files.exists(targetPath));
@@ -189,14 +189,14 @@ class XlsxCreatorTest {
                 .rows(rows)
                 .build();
 
-        XlsxCreator creator = XlsxCreator.builder("file.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("file.xlsx")
                 .sheet(sheet)
                 .build();
 
         Path targetPath = tempDir.resolve("file.xlsx");
         java.io.File targetFile = targetPath.toFile();
 
-        java.io.File resultFile = creator.toFile(targetFile);
+        java.io.File resultFile = maker.toFile(targetFile);
 
         assertEquals(targetFile, resultFile);
         assertTrue(targetFile.exists());
@@ -215,12 +215,12 @@ class XlsxCreatorTest {
 
         String password = "s3cr3t";
 
-        XlsxCreator creator = XlsxCreator.builder("secret.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("secret.xlsx")
                 .sheet(sheet)
                 .password(password)
                 .build();
 
-        byte[] encryptedBytes = creator.toBytes();
+        byte[] encryptedBytes = maker.toBytes();
 
         assertNotNull(encryptedBytes);
         assertTrue(encryptedBytes.length > 0);
@@ -263,12 +263,12 @@ class XlsxCreatorTest {
                 .rows(rows)
                 .build();
 
-        XlsxCreator creator = XlsxCreator.builder("protected.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("protected.xlsx")
                 .sheet(sheet)
                 .password("correct-password")
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
         assertNotNull(bytes);
         assertTrue(bytes.length > 0);
 
@@ -298,12 +298,12 @@ class XlsxCreatorTest {
                 .rows(rows)
                 .build();
 
-        XlsxCreator creator = XlsxCreator.builder("protected.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("protected.xlsx")
                 .sheet(sheet)
                 .password("correct-password")
                 .build();
 
-        byte[] encryptedBytes = creator.toBytes();
+        byte[] encryptedBytes = maker.toBytes();
 
         assertNotNull(encryptedBytes);
         assertTrue(encryptedBytes.length > 0);
@@ -323,10 +323,10 @@ class XlsxCreatorTest {
 
     @Test
     void toBytes_withNoSheets_createsEmptyWorkbook() {
-        XlsxCreator creator = XlsxCreator.builder("empty.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("empty.xlsx")
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
 
         assertNotNull(bytes);
         assertTrue(bytes.length > 0);
@@ -348,14 +348,14 @@ class XlsxCreatorTest {
                 .rows(rows)
                 .build();
 
-        XlsxCreator creator = XlsxCreator.builder("out.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("out.xlsx")
                 .sheet(sheet)
                 .build();
 
         Path targetPath = tempDir.resolve("out.xlsx");
 
         try (OutputStream os = Files.newOutputStream(targetPath)) {
-            creator.write(os);
+            maker.write(os);
         }
 
         assertTrue(Files.exists(targetPath));
@@ -375,7 +375,7 @@ class XlsxCreatorTest {
     // ----------------------------------------------------------------------
 
     @Test
-    void builder_sheets_originalListMutationDoesNotAffectCreator() {
+    void builder_sheets_originalListMutationDoesNotAffectmaker() {
         List<List<String>> rows = List.of(List.of("A1"));
         XlsxSheet sheet1 = XlsxSheet.builder("S1")
                 .rows(rows)
@@ -387,24 +387,24 @@ class XlsxCreatorTest {
         List<XlsxSheet> originalList = new ArrayList<>();
         originalList.add(sheet1);
 
-        XlsxCreator.Builder builder = XlsxCreator.builder("test.xlsx")
+        XlsxMaker.Builder builder = XlsxMaker.builder("test.xlsx")
                 .sheets(originalList);
 
         originalList.add(sheet2);
 
-        XlsxCreator creator = builder.build();
+        XlsxMaker maker = builder.build();
 
-        assertEquals(1, creator.getSheets().size());
-        assertEquals("S1", creator.getSheets().get(0).getSheetName());
+        assertEquals(1, maker.getSheets().size());
+        assertEquals("S1", maker.getSheets().get(0).getSheetName());
     }
 
     @Test
-    void builder_password_setsPasswordOnCreator() {
-        XlsxCreator creator = XlsxCreator.builder("pwd.xlsx")
+    void builder_password_setsPasswordOnmaker() {
+        XlsxMaker maker = XlsxMaker.builder("pwd.xlsx")
                 .password("password123")
                 .build();
 
-        assertEquals("password123", creator.getPassword());
+        assertEquals("password123", maker.getPassword());
     }
 
     @Test
@@ -414,13 +414,13 @@ class XlsxCreatorTest {
                 .rows(rows)
                 .build();
 
-        XlsxCreator creator = XlsxCreator.builder("named.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("named.xlsx")
                 .sheet(sheet)
                 .build();
 
-        assertEquals("named.xlsx", creator.getFileName());
-        assertEquals(1, creator.getSheets().size());
-        assertEquals("Sheet1", creator.getSheets().get(0).getSheetName());
+        assertEquals("named.xlsx", maker.getFileName());
+        assertEquals(1, maker.getSheets().size());
+        assertEquals("Sheet1", maker.getSheets().get(0).getSheetName());
     }
 
     @Test
@@ -433,13 +433,13 @@ class XlsxCreatorTest {
                 .rows(rows)
                 .build();
 
-        XlsxCreator creator = XlsxCreator.builder("ignored.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("ignored.xlsx")
                 .sheet(sheet)
                 .build();
 
         String fileName = "dir-file.xlsx";
 
-        java.io.File resultFile = creator.toFile(tempDir, fileName);
+        java.io.File resultFile = maker.toFile(tempDir, fileName);
 
         assertNotNull(resultFile);
         assertTrue(resultFile.exists());
@@ -457,16 +457,16 @@ class XlsxCreatorTest {
 
     @Test
     void toFile_withDirNull_throwsException() {
-        XlsxCreator creator = XlsxCreator.builder("test.xlsx").build();
+        XlsxMaker maker = XlsxMaker.builder("test.xlsx").build();
 
-        assertThrows(XlsxException.class, () -> creator.toFile(null, "file.xlsx"));
+        assertThrows(XlsxException.class, () -> maker.toFile(null, "file.xlsx"));
     }
 
     @Test
     void toFile_withBlankFileName_throwsException() {
-        XlsxCreator creator = XlsxCreator.builder("test.xlsx").build();
+        XlsxMaker maker = XlsxMaker.builder("test.xlsx").build();
 
-        assertThrows(XlsxException.class, () -> creator.toFile(tempDir, "   "));
+        assertThrows(XlsxException.class, () -> maker.toFile(tempDir, "   "));
     }
 
     @Test
@@ -479,11 +479,11 @@ class XlsxCreatorTest {
                 .rows(rows)
                 .build();
 
-        XlsxCreator creator = XlsxCreator.builder("temp.xlsx")
+        XlsxMaker maker = XlsxMaker.builder("temp.xlsx")
                 .sheet(sheet)
                 .build();
 
-        java.io.File tempFile = creator.toTempFile();
+        java.io.File tempFile = maker.toTempFile();
 
         assertNotNull(tempFile);
         assertTrue(tempFile.exists());

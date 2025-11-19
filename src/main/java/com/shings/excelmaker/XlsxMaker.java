@@ -21,12 +21,12 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class XlsxCreator {
+public final class XlsxMaker {
     private final String fileName;
     private final List<XlsxSheet> sheets;
     private final String password;
 
-    private XlsxCreator(Builder builder) {
+    private XlsxMaker(Builder builder) {
         if (builder.fileName == null || builder.fileName.isBlank()) {
             throw new XlsxException("fileName must not be null or blank.");
         }
@@ -308,8 +308,8 @@ public final class XlsxCreator {
             return this;
         }
 
-        public XlsxCreator build() {
-            return new XlsxCreator(this);
+        public XlsxMaker build() {
+            return new XlsxMaker(this);
         }
     }
 }

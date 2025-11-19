@@ -15,46 +15,46 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CsvCreatorTest {
+class CsvMakerTest {
     @TempDir
     Path tempDir;
 
     @Test
     void builder_nullFileName_throwsExceptionOnBuild() {
-        CsvCreator.Builder builder = CsvCreator.builder(null);
+        CsvMaker.Builder builder = CsvMaker.builder(null);
 
         assertThrows(CsvException.class, builder::build);
     }
 
     @Test
     void builder_blankFileName_throwsExceptionOnBuild() {
-        CsvCreator.Builder builder = CsvCreator.builder("   ");
+        CsvMaker.Builder builder = CsvMaker.builder("   ");
 
         assertThrows(CsvException.class, builder::build);
     }
 
     @Test
     void builder_lines_nullList_throwsException() {
-        CsvCreator.Builder builder = CsvCreator.builder("test.csv");
+        CsvMaker.Builder builder = CsvMaker.builder("test.csv");
 
         assertThrows(CsvException.class, () -> builder.lines(null));
     }
 
     @Test
     void builder_rows_nullList_throwsException() {
-        CsvCreator.Builder builder = CsvCreator.builder("test.csv");
+        CsvMaker.Builder builder = CsvMaker.builder("test.csv");
 
         assertThrows(CsvException.class, () -> builder.rows(null));
     }
 
     @Test
     void builder_line_null_isIgnored() {
-        CsvCreator creator = CsvCreator.builder("test.csv")
+        CsvMaker maker = CsvMaker.builder("test.csv")
                 .line(null)
                 .build();
 
-        assertNotNull(creator.getLines());
-        assertTrue(creator.getLines().isEmpty());
+        assertNotNull(maker.getLines());
+        assertTrue(maker.getLines().isEmpty());
     }
 
     @Test
@@ -67,48 +67,48 @@ class CsvCreatorTest {
         rows.add(null);
         rows.add(row2);
 
-        CsvCreator creator = CsvCreator.builder("rows.csv")
+        CsvMaker maker = CsvMaker.builder("rows.csv")
                 .rows(rows)
                 .build();
 
-        assertEquals(2, creator.getRows().size());
-        assertEquals(row1, creator.getRows().get(0));
-        assertEquals(row2, creator.getRows().get(1));
+        assertEquals(2, maker.getRows().size());
+        assertEquals(row1, maker.getRows().get(0));
+        assertEquals(row2, maker.getRows().get(1));
     }
 
     @Test
     void write_nullOutputStream_throwsException() {
-        CsvCreator creator = CsvCreator.builder("test.csv").build();
+        CsvMaker maker = CsvMaker.builder("test.csv").build();
 
-        assertThrows(CsvException.class, () -> creator.write(null));
+        assertThrows(CsvException.class, () -> maker.write(null));
     }
 
     @Test
     void toPath_nullTargetPath_throwsException() {
-        CsvCreator creator = CsvCreator.builder("test.csv").build();
+        CsvMaker maker = CsvMaker.builder("test.csv").build();
 
-        assertThrows(CsvException.class, () -> creator.toPath(null));
+        assertThrows(CsvException.class, () -> maker.toPath(null));
     }
 
     @Test
     void toFile_nullTargetFile_throwsException() {
-        CsvCreator creator = CsvCreator.builder("test.csv").build();
+        CsvMaker maker = CsvMaker.builder("test.csv").build();
 
-        assertThrows(CsvException.class, () -> creator.toFile((File) null));
+        assertThrows(CsvException.class, () -> maker.toFile((File) null));
     }
 
     @Test
     void toFile_dirNull_throwsException() {
-        CsvCreator creator = CsvCreator.builder("test.csv").build();
+        CsvMaker maker = CsvMaker.builder("test.csv").build();
 
-        assertThrows(CsvException.class, () -> creator.toFile(null, "file.csv"));
+        assertThrows(CsvException.class, () -> maker.toFile(null, "file.csv"));
     }
 
     @Test
     void toFile_blankFileName_throwsException() {
-        CsvCreator creator = CsvCreator.builder("test.csv").build();
+        CsvMaker maker = CsvMaker.builder("test.csv").build();
 
-        assertThrows(CsvException.class, () -> creator.toFile(tempDir, "   "));
+        assertThrows(CsvException.class, () -> maker.toFile(tempDir, "   "));
     }
 
     @Test
@@ -119,13 +119,13 @@ class CsvCreatorTest {
                 List.of("A2", "B2")
         );
 
-        CsvCreator creator = CsvCreator.builder("test.csv")
+        CsvMaker maker = CsvMaker.builder("test.csv")
                 .lines(headerLines)
                 .rows(rows)
                 .lineSeparator("\n")
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
 
         assertNotNull(bytes);
         assertTrue(bytes.length > 0);
@@ -145,12 +145,12 @@ class CsvCreatorTest {
                 List.of("a,b", "text \"with\" quotes", "line1\nline2")
         );
 
-        CsvCreator creator = CsvCreator.builder("special.csv")
+        CsvMaker maker = CsvMaker.builder("special.csv")
                 .rows(rows)
                 .lineSeparator("\n")
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
 
         assertNotNull(bytes);
         assertTrue(bytes.length > 0);
@@ -169,13 +169,13 @@ class CsvCreatorTest {
                 List.of("A", "B", "C")
         );
 
-        CsvCreator creator = CsvCreator.builder("semicolon.csv")
+        CsvMaker maker = CsvMaker.builder("semicolon.csv")
                 .rows(rows)
                 .delimiter(';')
                 .lineSeparator("\n")
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
 
         String csv = new String(bytes, StandardCharsets.UTF_8);
         String expected = "A;B;C\n";
@@ -185,11 +185,11 @@ class CsvCreatorTest {
 
     @Test
     void toBytes_withNoLinesAndNoRows_createsEmptyContent() {
-        CsvCreator creator = CsvCreator.builder("empty.csv")
+        CsvMaker maker = CsvMaker.builder("empty.csv")
                 .lineSeparator("\n")
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
 
         assertNotNull(bytes);
         String csv = new String(bytes, StandardCharsets.UTF_8);
@@ -202,14 +202,14 @@ class CsvCreatorTest {
                 List.of("C1", "D1")
         );
 
-        CsvCreator creator = CsvCreator.builder("data.csv")
+        CsvMaker maker = CsvMaker.builder("data.csv")
                 .rows(rows)
                 .lineSeparator("\n")
                 .build();
 
         Path targetPath = tempDir.resolve("data.csv");
 
-        Path resultPath = creator.toPath(targetPath);
+        Path resultPath = maker.toPath(targetPath);
 
         assertEquals(targetPath, resultPath);
         assertTrue(Files.exists(targetPath));
@@ -225,7 +225,7 @@ class CsvCreatorTest {
                 List.of("X1", "Y1")
         );
 
-        CsvCreator creator = CsvCreator.builder("file.csv")
+        CsvMaker maker = CsvMaker.builder("file.csv")
                 .rows(rows)
                 .lineSeparator("\n")
                 .build();
@@ -233,7 +233,7 @@ class CsvCreatorTest {
         Path targetPath = tempDir.resolve("file.csv");
         File targetFile = targetPath.toFile();
 
-        File resultFile = creator.toFile(targetFile);
+        File resultFile = maker.toFile(targetFile);
 
         assertEquals(targetFile, resultFile);
         assertTrue(targetFile.exists());
@@ -249,14 +249,14 @@ class CsvCreatorTest {
                 List.of("D1", "E1")
         );
 
-        CsvCreator creator = CsvCreator.builder("ignored.csv")
+        CsvMaker maker = CsvMaker.builder("ignored.csv")
                 .rows(rows)
                 .lineSeparator("\n")
                 .build();
 
         String fileName = "dir-file.csv";
 
-        File resultFile = creator.toFile(tempDir, fileName);
+        File resultFile = maker.toFile(tempDir, fileName);
 
         assertNotNull(resultFile);
         assertTrue(resultFile.exists());
@@ -273,12 +273,12 @@ class CsvCreatorTest {
                 List.of("T1", "T2")
         );
 
-        CsvCreator creator = CsvCreator.builder("temp.csv")
+        CsvMaker maker = CsvMaker.builder("temp.csv")
                 .rows(rows)
                 .lineSeparator("\n")
                 .build();
 
-        File tempFile = creator.toTempFile();
+        File tempFile = maker.toTempFile();
 
         assertNotNull(tempFile);
         assertTrue(tempFile.exists());
@@ -294,7 +294,7 @@ class CsvCreatorTest {
                 List.of("O1", "P1")
         );
 
-        CsvCreator creator = CsvCreator.builder("out.csv")
+        CsvMaker maker = CsvMaker.builder("out.csv")
                 .rows(rows)
                 .lineSeparator("\n")
                 .build();
@@ -302,7 +302,7 @@ class CsvCreatorTest {
         Path targetPath = tempDir.resolve("out.csv");
 
         try (OutputStream os = Files.newOutputStream(targetPath)) {
-            creator.write(os);
+            maker.write(os);
         }
 
         assertTrue(Files.exists(targetPath));
@@ -314,14 +314,14 @@ class CsvCreatorTest {
 
     @Test
     void getFileNameAndProperties_returnValuesFromBuilder() {
-        CsvCreator creator = CsvCreator.builder("named.csv")
+        CsvMaker maker = CsvMaker.builder("named.csv")
                 .delimiter(';')
                 .lineSeparator("\n")
                 .build();
 
-        assertEquals("named.csv", creator.getFileName());
-        assertEquals(';', creator.getDelimiter());
-        assertEquals("\n", creator.getLineSeparator());
+        assertEquals("named.csv", maker.getFileName());
+        assertEquals(';', maker.getDelimiter());
+        assertEquals("\n", maker.getLineSeparator());
     }
 
     @Test
@@ -330,12 +330,12 @@ class CsvCreatorTest {
                 List.of("한글", "テスト")
         );
 
-        CsvCreator creator = CsvCreator.builder("utf8.csv")
+        CsvMaker maker = CsvMaker.builder("utf8.csv")
                 .rows(rows)
                 .lineSeparator("\n")
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
 
         String csv = new String(bytes, StandardCharsets.UTF_8);
         assertEquals("한글,テスト\n", csv);
@@ -348,12 +348,12 @@ class CsvCreatorTest {
         rows.add(List.of());
         rows.add(List.of("B"));
 
-        CsvCreator creator = CsvCreator.builder("empty-row.csv")
+        CsvMaker maker = CsvMaker.builder("empty-row.csv")
                 .rows(rows)
                 .lineSeparator("\n")
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
         String csv = new String(bytes, StandardCharsets.UTF_8);
 
         String expected =
@@ -371,11 +371,11 @@ class CsvCreatorTest {
                 List.of("C", "D")
         );
 
-        CsvCreator creator = CsvCreator.builder("default-ls.csv")
+        CsvMaker maker = CsvMaker.builder("default-ls.csv")
                 .rows(rows)
                 .build();
 
-        byte[] bytes = creator.toBytes();
+        byte[] bytes = maker.toBytes();
         String csv = new String(bytes, StandardCharsets.UTF_8);
 
         String ls = System.lineSeparator();

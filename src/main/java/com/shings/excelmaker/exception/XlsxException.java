@@ -3,7 +3,7 @@ package com.shings.excelmaker.exception;
 /**
  * Custom exception for XLSX generation errors.
  * This exception encapsulates underlying I/O or processing exceptions
- * to provide a unified runtime error during XlsxCreator operations.
+ * to provide a unified runtime error during Xlsxmaker operations.
  */
 public class XlsxException extends RuntimeException {
 

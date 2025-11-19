@@ -10,14 +10,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CsvCreator {
+public final class CsvMaker {
     private final String fileName;
     private final List<String> lines;
     private final List<List<String>> rows;
     private final char delimiter;
     private final String lineSeparator;
 
-    private CsvCreator(Builder builder) {
+    private CsvMaker(Builder builder) {
         if (builder.fileName == null || builder.fileName.isBlank()) {
             throw new CsvException("fileName must not be null or blank.");
         }
@@ -242,8 +242,8 @@ public final class CsvCreator {
             return this;
         }
 
-        public CsvCreator build() {
-            return new CsvCreator(this);
+        public CsvMaker build() {
+            return new CsvMaker(this);
         }
     }
 }
