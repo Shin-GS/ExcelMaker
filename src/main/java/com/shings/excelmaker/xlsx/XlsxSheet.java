@@ -1,6 +1,7 @@
 package com.shings.excelmaker.xlsx;
 
 import com.shings.excelmaker.exception.XlsxException;
+import com.shings.excelmaker.util.CollectionCopyUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,7 +74,7 @@ public final class XlsxSheet {
                 throw new XlsxException("headerCells must not be empty.");
             }
 
-            this.headerCells = List.copyOf(headerCells);
+            this.headerCells = CollectionCopyUtils.nullSafeCopyOf(headerCells);
             return this;
         }
 
@@ -82,7 +83,7 @@ public final class XlsxSheet {
                 throw new XlsxException("rows must not be null.");
             }
 
-            this.rows = List.copyOf(rows);
+            this.rows = CollectionCopyUtils.nullSafeCopyOf(rows);
             return this;
         }
 

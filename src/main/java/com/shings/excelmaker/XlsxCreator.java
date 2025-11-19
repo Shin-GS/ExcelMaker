@@ -1,6 +1,7 @@
 package com.shings.excelmaker;
 
 import com.shings.excelmaker.exception.XlsxException;
+import com.shings.excelmaker.util.CollectionCopyUtils;
 import com.shings.excelmaker.xlsx.XlsxSheet;
 import com.shings.excelmaker.xlsx.XlsxSheetCell;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
@@ -31,7 +32,7 @@ public final class XlsxCreator {
         }
 
         this.fileName = builder.fileName;
-        this.sheets = List.copyOf(builder.sheets);
+        this.sheets = CollectionCopyUtils.nullSafeCopyOf(builder.sheets);
         this.password = builder.password;
     }
 
@@ -266,7 +267,7 @@ public final class XlsxCreator {
             }
 
             if (!sheetList.isEmpty()) {
-                sheets.addAll(List.copyOf(sheetList));
+                sheets.addAll(CollectionCopyUtils.nullSafeCopyOf(sheetList));
             }
 
             return this;
