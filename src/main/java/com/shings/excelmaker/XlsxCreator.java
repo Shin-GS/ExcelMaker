@@ -92,6 +92,34 @@ public final class XlsxCreator {
         return targetFile;
     }
 
+    public File toFile(Path dir, String fileName) {
+        if (dir == null) {
+            throw new XlsxException("dir must not be null.");
+        }
+
+        if (fileName == null || fileName.isBlank()) {
+            throw new XlsxException("fileName must not be null or blank.");
+        }
+
+        Path resolvedPath = dir.resolve(fileName);
+        toPath(resolvedPath);
+        return resolvedPath.toFile();
+    }
+
+    public File toTempFile() {
+        try {
+            Path temp = Files.createTempFile(null, ".xlsx");
+            try (OutputStream out = Files.newOutputStream(temp)) {
+                generate(out);
+            }
+
+            return temp.toFile();
+
+        } catch (IOException e) {
+            throw new XlsxException("Failed to generate temporary XLSX file.", e);
+        }
+    }
+
     private void generate(OutputStream out) {
         try (SXSSFWorkbook workbook = new SXSSFWorkbook()) {
             workbook.setCompressTempFiles(true);
