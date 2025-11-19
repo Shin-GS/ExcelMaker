@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -101,7 +102,7 @@ class XlsxCreatorTest {
     void toFile_nullTargetFile_throwsException() {
         XlsxCreator creator = XlsxCreator.builder("test.xlsx").build();
 
-        assertThrows(XlsxException.class, () -> creator.toFile(null));
+        assertThrows(XlsxException.class, () -> creator.toFile((java.io.File) null));
     }
 
     @Test
@@ -264,14 +265,13 @@ class XlsxCreatorTest {
 
         XlsxCreator creator = XlsxCreator.builder("protected.xlsx")
                 .sheet(sheet)
-                .password("correct-password")  // 분명 패스워드 설정
+                .password("correct-password")
                 .build();
 
         byte[] bytes = creator.toBytes();
         assertNotNull(bytes);
         assertTrue(bytes.length > 0);
 
-        // 1) 평문 XLSX로 열어보기
         try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(bytes))) {
             System.out.println(">>> Opened as plain XSSFWorkbook. -> NOT encrypted.");
             System.out.println("Sheets: " + workbook.getNumberOfSheets());
@@ -279,7 +279,6 @@ class XlsxCreatorTest {
             System.out.println(">>> Cannot open as plain XSSFWorkbook. Maybe encrypted: " + e.getMessage());
         }
 
-        // 2) POIFSFileSystem으로 열어보기
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              POIFSFileSystem fs = new POIFSFileSystem(bis)) {
 
@@ -368,6 +367,134 @@ class XlsxCreatorTest {
             assertNotNull(workbook.getSheet("OutSheet"));
         } catch (IOException e) {
             fail("Should be able to read workbook written via write(OutputStream)", e);
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Additional tests
+    // ----------------------------------------------------------------------
+
+    @Test
+    void builder_sheets_originalListMutationDoesNotAffectCreator() {
+        List<List<String>> rows = List.of(List.of("A1"));
+        XlsxSheet sheet1 = XlsxSheet.builder("S1")
+                .rows(rows)
+                .build();
+        XlsxSheet sheet2 = XlsxSheet.builder("S2")
+                .rows(rows)
+                .build();
+
+        List<XlsxSheet> originalList = new ArrayList<>();
+        originalList.add(sheet1);
+
+        XlsxCreator.Builder builder = XlsxCreator.builder("test.xlsx")
+                .sheets(originalList);
+
+        originalList.add(sheet2);
+
+        XlsxCreator creator = builder.build();
+
+        assertEquals(1, creator.getSheets().size());
+        assertEquals("S1", creator.getSheets().get(0).getSheetName());
+    }
+
+    @Test
+    void builder_password_setsPasswordOnCreator() {
+        XlsxCreator creator = XlsxCreator.builder("pwd.xlsx")
+                .password("password123")
+                .build();
+
+        assertEquals("password123", creator.getPassword());
+    }
+
+    @Test
+    void getFileNameAndSheets_returnValuesFromBuilder() {
+        List<List<String>> rows = List.of(List.of("A1"));
+        XlsxSheet sheet = XlsxSheet.builder("Sheet1")
+                .rows(rows)
+                .build();
+
+        XlsxCreator creator = XlsxCreator.builder("named.xlsx")
+                .sheet(sheet)
+                .build();
+
+        assertEquals("named.xlsx", creator.getFileName());
+        assertEquals(1, creator.getSheets().size());
+        assertEquals("Sheet1", creator.getSheets().get(0).getSheetName());
+    }
+
+    @Test
+    void toFile_withDirAndFileName_writesFileOnDisk() throws IOException {
+        List<List<String>> rows = List.of(
+                List.of("D1", "E1")
+        );
+
+        XlsxSheet sheet = XlsxSheet.builder("DirSheet")
+                .rows(rows)
+                .build();
+
+        XlsxCreator creator = XlsxCreator.builder("ignored.xlsx")
+                .sheet(sheet)
+                .build();
+
+        String fileName = "dir-file.xlsx";
+
+        java.io.File resultFile = creator.toFile(tempDir, fileName);
+
+        assertNotNull(resultFile);
+        assertTrue(resultFile.exists());
+        assertTrue(resultFile.length() > 0L);
+        assertEquals(tempDir.resolve(fileName), resultFile.toPath());
+
+        try (XSSFWorkbook workbook =
+                     new XSSFWorkbook(Files.newInputStream(resultFile.toPath()))) {
+            assertEquals(1, workbook.getNumberOfSheets());
+            assertNotNull(workbook.getSheet("DirSheet"));
+        } catch (IOException e) {
+            fail("Should be able to read workbook written via toFile(Path, String)", e);
+        }
+    }
+
+    @Test
+    void toFile_withDirNull_throwsException() {
+        XlsxCreator creator = XlsxCreator.builder("test.xlsx").build();
+
+        assertThrows(XlsxException.class, () -> creator.toFile(null, "file.xlsx"));
+    }
+
+    @Test
+    void toFile_withBlankFileName_throwsException() {
+        XlsxCreator creator = XlsxCreator.builder("test.xlsx").build();
+
+        assertThrows(XlsxException.class, () -> creator.toFile(tempDir, "   "));
+    }
+
+    @Test
+    void toTempFile_createsPhysicalTempFile() {
+        List<List<String>> rows = List.of(
+                List.of("T1", "T2")
+        );
+
+        XlsxSheet sheet = XlsxSheet.builder("TempSheet")
+                .rows(rows)
+                .build();
+
+        XlsxCreator creator = XlsxCreator.builder("temp.xlsx")
+                .sheet(sheet)
+                .build();
+
+        java.io.File tempFile = creator.toTempFile();
+
+        assertNotNull(tempFile);
+        assertTrue(tempFile.exists());
+        assertTrue(tempFile.length() > 0L);
+
+        try (XSSFWorkbook workbook =
+                     new XSSFWorkbook(Files.newInputStream(tempFile.toPath()))) {
+            assertEquals(1, workbook.getNumberOfSheets());
+            assertNotNull(workbook.getSheet("TempSheet"));
+        } catch (IOException e) {
+            fail("Should be able to read workbook from temporary file", e);
         }
     }
 }
