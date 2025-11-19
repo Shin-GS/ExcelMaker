@@ -133,13 +133,13 @@ public final class CsvMaker extends AbstractMaker<CsvException> {
             return this;
         }
 
-        public Builder lines(List<String> lineList) {
-            if (lineList == null) {
+        public Builder lines(List<String> lines) {
+            if (lines == null) {
                 throw new CsvException("lines must not be null.");
             }
 
-            if (!lineList.isEmpty()) {
-                lines.addAll(CollectionCopyUtils.nullSafeCopyOf(lineList));
+            if (!lines.isEmpty()) {
+                this.lines.addAll(CollectionCopyUtils.nullSafeCopyOf(lines));
             }
 
             return this;
@@ -153,13 +153,13 @@ public final class CsvMaker extends AbstractMaker<CsvException> {
             return this;
         }
 
-        public Builder rows(List<List<String>> rowList) {
-            if (rowList == null) {
+        public Builder rows(List<List<String>> rows) {
+            if (rows == null) {
                 throw new CsvException("rows must not be null.");
             }
 
-            if (!rowList.isEmpty()) {
-                rows.addAll(CollectionCopyUtils.nullSafeCopyOf(rowList));
+            if (!rows.isEmpty()) {
+                this.rows.addAll(CollectionCopyUtils.nullSafeCopyOf(rows));
             }
 
             return this;
