@@ -1,5 +1,7 @@
 package com.shings.excelmaker;
 
+import com.shings.excelmaker.util.FileUtil;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +15,10 @@ public abstract class AbstractMaker<E extends RuntimeException> {
     protected AbstractMaker(String fileName) {
         if (fileName == null || fileName.isBlank()) {
             throw createException("fileName must not be null or blank.", null);
+        }
+
+        if (FileUtil.isInvalidFilename(fileName)) {
+            throw createException("Invalid fileName. The file name must not contain invalid characters: \\ / : * ? \" < > |", null);
         }
 
         this.fileName = fileName;
